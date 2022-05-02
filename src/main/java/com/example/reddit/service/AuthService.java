@@ -1,12 +1,14 @@
 package com.example.reddit.service;
 
 import com.example.reddit.dto.RegisterRequest;
+import com.example.reddit.exception.SpringRedditException;
 import com.example.reddit.model.NotificationEmail;
 import com.example.reddit.model.User;
 import com.example.reddit.model.VerificationToken;
 import com.example.reddit.repository.UserRepository;
 import com.example.reddit.repository.VerificationTokenRepository;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,4 +53,18 @@ public class AuthService {
     return token;
   }
 
+  public void verifyAccount(String token) {
+    Optional<VerificationToken> verificationToken = verificationTokenRepository.findByToken(token);
+    verificationToken.orElseThrow(() -> new SpringRedditException("Invalid token. Error!"));
+    fetchUserAndEnable(verificationToken.get());
+  }
+
+  @Transactional
+  private void fetchUserAndEnable(VerificationToken verificationToken) {
+    String username = verificationToken.getUser().getUserName();
+    User user = userRepository.findByUserName(username)
+        .orElseThrow(() -> new SpringRedditException("User not found with name - " + username));
+    user.setEnabled(true);
+    userRepository.save(user);
+  }
 }
