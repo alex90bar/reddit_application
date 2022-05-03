@@ -1,5 +1,7 @@
 package com.example.reddit.controller;
 
+import com.example.reddit.dto.AuthenticationResponse;
+import com.example.reddit.dto.LoginRequest;
 import com.example.reddit.dto.RegisterRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,6 +34,11 @@ public class AuthController {
   public ResponseEntity<String> verifyAccount(@PathVariable String token){
     authService.verifyAccount(token);
     return new ResponseEntity<>("Account activated successfully", HttpStatus.OK);
+  }
+
+  @PostMapping("/login")
+  public AuthenticationResponse login(@RequestBody LoginRequest loginRequest){
+    return authService.login(loginRequest);
   }
 
 }
