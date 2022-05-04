@@ -82,6 +82,12 @@ public class AuthService {
     SecurityContextHolder.getContext().setAuthentication(authentication);
     String token = jwtProvider.generateToken(authentication);
     return new AuthenticationResponse(token, loginRequest.getUsername());
-
+  }
+  public User getCurrentUser() {
+    org.springframework.security.core.userdetails.User principal = (org.springframework.security.core.userdetails.User) SecurityContextHolder.
+        getContext().getAuthentication().getPrincipal();
+    User user = userRepository.findByUserName(principal.getUsername())
+        .orElseThrow(() -> new SpringRedditException("User not found with name - " + principal.getUsername()));
+    return user;
   }
 }
